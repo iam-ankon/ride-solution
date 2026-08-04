@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: ride-solution
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://ride-solution-backend-udox.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
