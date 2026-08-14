@@ -36,6 +36,7 @@ function AddCar() {
     name: "",
     brand: "",
     model_year: new Date().getFullYear(),
+    registration_number: "",
     daily_price: "",
     weekly_price: "",
     rent_to_own_price: "",
@@ -226,6 +227,7 @@ function AddCar() {
       name: formData.name,
       brand: formData.brand,
       model_year: parseInt(formData.model_year),
+      registration_number: formData.registration_number,
       daily_price: parseFloat(formData.daily_price) || 0,
       weekly_price: parseFloat(formData.weekly_price) || 0,
       rent_to_own_price: parseFloat(monthlyPayment) || 0,
@@ -376,6 +378,19 @@ function AddCar() {
                     min="1900"
                     max="2025"
                     className="w-full px-4 py-2 border rounded-lg"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2">Registration Number *</label>
+                  <input
+                    type="text"
+                    name="registration_number"
+                    value={formData.registration_number}
+                    onChange={handleChange}
+                    placeholder="e.g., ABC123"
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   />
                 </div>
 
