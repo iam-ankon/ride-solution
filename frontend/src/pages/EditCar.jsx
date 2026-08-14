@@ -822,7 +822,21 @@ function EditCar() {
 
                 <div className="mb-4">
                   <label className="block text-gray-700 mb-2">
-                    Total Units Available
+                    Available Units
+                  </label>
+                  <input
+                    type="number"
+                    name="available_units"
+                    value={formData.available_units}
+                    onChange={handleChange}
+                    min="1"
+                    className="w-full px-4 py-2 border rounded-lg"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2">
+                    Total Units
                   </label>
                   <input
                     type="number"
@@ -833,6 +847,7 @@ function EditCar() {
                     className="w-full px-4 py-2 border rounded-lg"
                   />
                 </div>
+
               </div>
             </div>
 
