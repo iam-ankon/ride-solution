@@ -93,7 +93,7 @@ class CarAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('Basic Information', {
-            'fields': ('name', 'brand', 'model_year', 'registration_number', 'owner', 'status', 'featured', '')
+            'fields': ('name', 'brand', 'model_year', 'owner', 'status', 'featured')
         }),
         ('Rental Options Availability', {
             'fields': ('short_term_available', 'long_term_available', 'rent_to_own_available'),
