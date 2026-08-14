@@ -64,6 +64,7 @@ function CarDetails() {
   const [endDate, setEndDate] = useState(null);
   const [bookedRanges, setBookedRanges] = useState([]);
   const [stockInfo, setStockInfo] = useState(null);
+  const [isAvailableForSelectedDates, setIsAvailableForSelectedDates] = useState(true);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -276,6 +277,18 @@ function CarDetails() {
       setBookedRanges([]);
     }
   };
+
+  // Check availability for selected dates
+  useEffect(() => {
+    if (!startDate || selectedRentalType === "rent_to_own" || !endDate) {
+      setIsAvailableForSelectedDates(true);
+      return;
+    }
+
+    // Check if the selected date range overlaps with any booked ranges
+    const hasConflict = isDateRangeBooked(startDate, endDate);
+    setIsAvailableForSelectedDates(!hasConflict);
+  }, [startDate, endDate, bookedRanges, selectedRentalType]);
 
   useEffect(() => {
     if (!car) return;
@@ -516,8 +529,13 @@ function CarDetails() {
   const ongoingTotal = (parseFloat(car.ongoing_cost_weekly) || 79) * totalWeeks;
   const serviceTotal = (parseFloat(car.service_fee_weekly) || 55) * totalWeeks;
 
-  // Check if booking is disabled (no start date or no enabled options)
-  const isBookingDisabled = !startDate || !hasAnyEnabledOption;
+  // Check if booking is disabled
+  const isBookingDisabled = !startDate || 
+    !hasAnyEnabledOption ||
+    (selectedRentalType !== "rent_to_own" && !isAvailableForSelectedDates) ||
+    (selectedRentalType === "daily" && !isDailyEnabled) ||
+    (selectedRentalType === "weekly" && !isWeeklyEnabled) ||
+    (selectedRentalType === "rent_to_own" && !isRTOEnabled);
 
   const formatDate = (date) => {
     if (!date) return "Not selected";
@@ -541,6 +559,35 @@ function CarDetails() {
     }
     
     return "p-3 md:p-4 rounded-xl border-2 border-gray-200 hover:border-blue-300 hover:shadow-md cursor-pointer";
+  };
+
+  // Get booking button text
+  const getBookingButtonText = () => {
+    if (!startDate) return "📅 Select Start Date First";
+    
+    if ((selectedRentalType === "daily" && !isDailyEnabled) ||
+        (selectedRentalType === "weekly" && !isWeeklyEnabled) ||
+        (selectedRentalType === "rent_to_own" && !isRTOEnabled)) {
+      return "🔒 Option Unavailable";
+    }
+    
+    if (selectedRentalType !== "rent_to_own" && !isAvailableForSelectedDates) {
+      return "❌ Not Available for Selected Dates";
+    }
+    
+    if (hasSignupFeeOption) {
+      return `📝 Pay Signup Fee - $${upfrontPayment}`;
+    }
+    
+    if (selectedRentalType === "daily") {
+      return `💰 Book Now - $${calculatedPrice.toLocaleString()}`;
+    }
+    
+    if (selectedRentalType === "weekly") {
+      return `🚗 Start Rental - $${weeklyPrice.toLocaleString()}/week`;
+    }
+    
+    return `🏠 Start Ownership - $${calculatedPrice}/week`;
   };
 
   return (
@@ -584,13 +631,20 @@ function CarDetails() {
                   </div>
                 )}
 
+                {/* UPDATED: Stock Info Badge with Date Availability */}
                 {stockInfo && (
-                  <div className={`absolute top-3 left-3 md:top-4 md:left-4 inline-flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1 rounded-full text-xs font-medium shadow-lg ${stockInfo.available_units > 0
-                    ? "bg-green-500 text-white"
-                    : "bg-red-500 text-white"
+                  <div className={`absolute top-3 left-3 md:top-4 md:left-4 inline-flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-1 rounded-full text-xs font-medium shadow-lg 
+                    ${!startDate ? "bg-yellow-500 text-white" :
+                      selectedRentalType === "rent_to_own" ? "bg-green-500 text-white" :
+                      isAvailableForSelectedDates && stockInfo.available_units > 0 ? "bg-green-500 text-white" : 
+                      "bg-red-500 text-white"
                     }`}>
                     <div className={`w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-white`}></div>
-                    {stockInfo.available_units > 0 ? `${stockInfo.available_units} Available` : "Out of Stock"}
+                    {!startDate ? "Select Dates" :
+                     selectedRentalType === "rent_to_own" ? `${stockInfo.available_units} Available` :
+                     isAvailableForSelectedDates && stockInfo.available_units > 0 ? 
+                       `${stockInfo.available_units} Available` : 
+                       "Booked for these dates"}
                   </div>
                 )}
 
@@ -972,7 +1026,7 @@ function CarDetails() {
                     </div>
                   )}
 
-                  {/* Price Summary - FIXED to show weekly rate vs total price */}
+                  {/* Price Summary */}
                   <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t">
                     <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-3 md:p-4">
                       <div className="space-y-2">
@@ -1087,6 +1141,11 @@ function CarDetails() {
                       <p className="text-xs md:text-sm text-blue-700">
                         {formatDate(startDate)} → {formatDate(endDate)}
                       </p>
+                      {!isAvailableForSelectedDates && (
+                        <p className="text-xs text-red-600 mt-2 font-semibold">
+                          ⚠️ These dates are not available
+                        </p>
+                      )}
                     </div>
                   )}
                   {startDate && selectedRentalType === "rent_to_own" && (
@@ -1099,38 +1158,28 @@ function CarDetails() {
                 </div>
               )}
 
-              {/* Desktop Book Button - Only show if selected option is enabled */}
+              {/* Desktop Book Button - Updated with availability check */}
               {hasAnyEnabledOption && (
                 <button
                   type="button"
                   onClick={() => {
-                    // Only allow booking if the selected option is enabled
+                    // Only allow booking if the selected option is enabled and dates are available
                     if ((selectedRentalType === "daily" && !isDailyEnabled) ||
                         (selectedRentalType === "weekly" && !isWeeklyEnabled) ||
                         (selectedRentalType === "rent_to_own" && !isRTOEnabled)) {
                       alert("This rental option is currently unavailable. Please select another option.");
                       return;
                     }
+                    if (selectedRentalType !== "rent_to_own" && !isAvailableForSelectedDates) {
+                      alert("❌ These dates are not available. Please select different dates.");
+                      return;
+                    }
                     setShowBookingForm(true);
                   }}
-                  disabled={isBookingDisabled || 
-                    (selectedRentalType === "daily" && !isDailyEnabled) ||
-                    (selectedRentalType === "weekly" && !isWeeklyEnabled) ||
-                    (selectedRentalType === "rent_to_own" && !isRTOEnabled)}
+                  disabled={isBookingDisabled}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 md:py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all text-base md:text-lg shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] hidden md:block"
                 >
-                  {!startDate ? "📅 Select Start Date First" :
-                    ((selectedRentalType === "daily" && !isDailyEnabled) ||
-                     (selectedRentalType === "weekly" && !isWeeklyEnabled) ||
-                     (selectedRentalType === "rent_to_own" && !isRTOEnabled)) ? "🔒 Option Unavailable" :
-                    hasSignupFeeOption
-                      ? `📝 Pay Signup Fee - $${upfrontPayment}`
-                      : selectedRentalType === "daily"
-                        ? `💰 Book Now - $${calculatedPrice.toLocaleString()}`
-                        : selectedRentalType === "weekly"
-                          ? `🚗 Start Rental - $${weeklyPrice.toLocaleString()}/week`
-                          : `🏠 Start Ownership - $${calculatedPrice}/week`
-                  }
+                  {getBookingButtonText()}
                 </button>
               )}
 
@@ -1215,7 +1264,7 @@ function CarDetails() {
           </div>
         </div>
 
-        {/* Mobile Sticky Book Button */}
+        {/* Mobile Sticky Book Button - Updated with availability check */}
         {hasAnyEnabledOption && (
           <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-3 md:p-4 z-40 md:hidden">
             <button
@@ -1227,26 +1276,16 @@ function CarDetails() {
                   alert("This rental option is currently unavailable. Please select another option.");
                   return;
                 }
+                if (selectedRentalType !== "rent_to_own" && !isAvailableForSelectedDates) {
+                  alert("❌ These dates are not available. Please select different dates.");
+                  return;
+                }
                 setShowBookingForm(true);
               }}
-              disabled={isBookingDisabled ||
-                (selectedRentalType === "daily" && !isDailyEnabled) ||
-                (selectedRentalType === "weekly" && !isWeeklyEnabled) ||
-                (selectedRentalType === "rent_to_own" && !isRTOEnabled)}
+              disabled={isBookingDisabled}
               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-transform"
             >
-              {!startDate ? "📅 Select Date First" :
-                ((selectedRentalType === "daily" && !isDailyEnabled) ||
-                 (selectedRentalType === "weekly" && !isWeeklyEnabled) ||
-                 (selectedRentalType === "rent_to_own" && !isRTOEnabled)) ? "🔒 Option Unavailable" :
-                hasSignupFeeOption
-                  ? `📝 Pay Signup Fee - $${upfrontPayment}`
-                  : selectedRentalType === "daily"
-                    ? `💰 Book Now - $${calculatedPrice.toLocaleString()}`
-                    : selectedRentalType === "weekly"
-                      ? `🚗 Start Rental - $${weeklyPrice.toLocaleString()}/week`
-                      : `🏠 Start Ownership - $${calculatedPrice}/week`
-              }
+              {getBookingButtonText()}
             </button>
             {hasSignupFeeOption && (
               <p className="text-center text-xs text-gray-500 mt-2">
@@ -1256,6 +1295,11 @@ function CarDetails() {
             {hasBond() && !hasSignupFeeOption && (
               <p className="text-center text-xs text-gray-500 mt-2">
                 Bond payment of ${bondAmount} will be required after booking.
+              </p>
+            )}
+            {!isAvailableForSelectedDates && selectedRentalType !== "rent_to_own" && startDate && (
+              <p className="text-center text-xs text-red-500 mt-2">
+                ❌ These dates are not available
               </p>
             )}
           </div>

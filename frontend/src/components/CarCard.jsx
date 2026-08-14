@@ -59,6 +59,7 @@ const CarCard = ({ car }) => {
   const availability = {
     color: isAvailable ? 'bg-green-500' : (car.status === 'maintenance' ? 'bg-red-500' : 'bg-orange-500'),
     text: isAvailable ? 'Available' : (car.status === 'maintenance' ? 'Maintenance' : 'Unavailable'),
+    
     buttonText: isAvailable ? 'Book Now' : 'Check Availability',
     buttonClass: isAvailable
       ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800'
