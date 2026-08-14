@@ -390,6 +390,7 @@ function AddCar() {
                     <option value="available">Available</option>
                     <option value="rented">Rented</option>
                     <option value="maintenance">Maintenance</option>
+                    <option value="booked_out">Booked Out</option>
                   </select>
                 </div>
               </div>
