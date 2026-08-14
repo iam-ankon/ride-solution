@@ -233,7 +233,7 @@ function AddCar() {
       min_rental_days: parseInt(formData.min_rental_days),
       max_weekly_bookings: parseInt(formData.max_weekly_bookings),
       total_units: parseInt(formData.total_units),
-      available_units: parseInt(formData.total_units),
+      available_units: parseInt(formData.available_units),
       featured: formData.featured,
       short_term_available: formData.short_term_available,
       long_term_available: formData.long_term_available,
