@@ -255,9 +255,15 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <Link to="/login">
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign In</button>
-              </Link>
+              <>
+                <Link to="/login">
+                  <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Sign In</button>
+                </Link>
+                <Link to="/register">
+                  <button className="border-2 border-blue-600 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50">Register</button>
+                </Link>
+              </>
+              
             )}
           </div>
 
