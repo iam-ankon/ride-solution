@@ -23,7 +23,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-w$1!84jukn8+c!&!s8s$2
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # ========== STRIPE CONFIGURATION ==========
-STRIPE_PUBLISHABLE_KEY = 'pk_live_51JEoKMGPgvI1pRpvHGuciQJpV6TN0yWsRxyrEW9rLwX48B3N22ytW6emUuaa61baichRtMzgGKe2aGMXTPFaJAJI00OKbVEee6'
+STRIPE_PUBLISHABLE_KEY = 'pk_live_51TscOcPZOykwDlCWYmHatUNGFqFm7bDLLqI34KgjtSZ61D9r3eY8mYZ4vTiU0VIe6KkNi6zsCvLDvrY7AIjVSWB200OXy8uN1p'
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'https://otobigo.onrender.com/')
