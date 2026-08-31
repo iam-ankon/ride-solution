@@ -330,7 +330,13 @@ class CarViewSet(viewsets.ModelViewSet):
     def rent(self, request, pk=None):
         try:
             car = self.get_object()
-            
+
+            if car.status in ['booked_out', 'maintenance']:
+                return Response(
+                    {'error': f'This car is currently {car.get_status_display()} and cannot be booked.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             rental_type = request.data.get('rental_type', 'daily')
             customer_name = request.data.get('customer_name')
             customer_email = request.data.get('customer_email')
@@ -343,7 +349,7 @@ class CarViewSet(viewsets.ModelViewSet):
             total_price = request.data.get('total_price', 0)
             weekly_price = request.data.get('weekly_price', 0)
             special_requests = request.data.get('special_requests', '')
-            
+
             if not all([customer_name, customer_email, customer_phone, start_date_str]):
                 return Response(
                     {'error': 'Missing required fields: name, email, phone, start_date'},
@@ -585,7 +591,13 @@ class CarViewSet(viewsets.ModelViewSet):
     def create_checkout_session(self, request, pk=None):
         try:
             car = self.get_object()
-            
+
+            if car.status in ['booked_out', 'maintenance']:
+                return Response({
+                    'success': False,
+                    'error': f'This car is currently {car.get_status_display()} and cannot be booked.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             rental_type = request.data.get('rental_type', 'daily')
             customer_name = request.data.get('customer_name')
             customer_email = request.data.get('customer_email')
