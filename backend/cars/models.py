@@ -140,7 +140,12 @@ class Car(models.Model):
     
     def __str__(self):
         return f"{self.brand} {self.name} ({self.model_year})"
-    
+
+    def save(self, *args, **kwargs):
+        if self.status == 'booked_out':
+            self.available_units = 0
+        super().save(*args, **kwargs)
+
     def calculate_rent_to_own_weekly(self, months=None):
         """Calculate weekly rent-to-own payment using the comprehensive Excel formula"""
         if not self.car_value or self.car_value <= 0:
