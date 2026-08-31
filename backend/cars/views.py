@@ -512,7 +512,7 @@ class CarViewSet(viewsets.ModelViewSet):
             status__in=['confirmed', 'active']
         ).count()
 
-        available_units = max(0, car.total_units - total_active)
+        available_units = max(0, min(car.available_units, car.total_units - total_active))
 
         return Response({
             'is_available': available_units > 0,

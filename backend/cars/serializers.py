@@ -87,7 +87,6 @@ class CarSerializer(serializers.ModelSerializer):
     weekly_savings = serializers.SerializerMethodField()
     is_available = serializers.SerializerMethodField()
     main_image = serializers.SerializerMethodField()
-    available_units = serializers.SerializerMethodField()
     calculated_rent_to_own_price = serializers.SerializerMethodField()
     rent_to_own_weekly = serializers.SerializerMethodField()
     rent_to_own_total_weeks = serializers.SerializerMethodField()
@@ -146,10 +145,7 @@ class CarSerializer(serializers.ModelSerializer):
     
     def get_is_available(self, obj):
         return obj.available_units > 0
-    
-    def get_available_units(self, obj):
-        return obj.available_units
-    
+
     def get_main_image(self, obj):
         primary_image = obj.images.filter(is_primary=True).first()
         if primary_image:
