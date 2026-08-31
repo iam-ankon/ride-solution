@@ -57,8 +57,13 @@ function Cars() {
     return matchesSearch && matchesBrand && matchesPrice;
   });
 
-  // Sort cars
+  // Sort cars: available cars first, unavailable (booked out) cars last
+  const isUnavailable = (car) => car.status === "booked_out" || car.available_units === 0;
+
   filteredCars = [...filteredCars].sort((a, b) => {
+    const unavailableDiff = Number(isUnavailable(a)) - Number(isUnavailable(b));
+    if (unavailableDiff !== 0) return unavailableDiff;
+
     if (sortBy === "price_low") {
       return getDailyPrice(a) - getDailyPrice(b);
     } else if (sortBy === "price_high") {
