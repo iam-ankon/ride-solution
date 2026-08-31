@@ -201,15 +201,27 @@ function EditCar() {
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     let parsedValue = value;
-    
+
     if (type === "number") {
       parsedValue = parseFloat(value);
     }
-    
-    setFormData((prev) => ({
-      ...prev,
-      [name]: parsedValue,
-    }));
+
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]: parsedValue,
+      };
+
+      if (name === "status") {
+        if (value === "booked_out") {
+          updated.available_units = 0;
+        } else if (prev.status === "booked_out" && value !== "booked_out") {
+          updated.available_units = prev.total_units || 1;
+        }
+      }
+
+      return updated;
+    });
   };
 
   const handleCheckboxChange = (e) => {
