@@ -284,7 +284,15 @@ class AuthViewSet(viewsets.GenericViewSet):
 class CarViewSet(viewsets.ModelViewSet):
     queryset = Car.objects.all()
     serializer_class = CarSerializer
-    
+
+    def get_queryset(self):
+        status_order = models.Case(
+            models.When(status='booked_out', then=1),
+            default=0,
+            output_field=models.IntegerField(),
+        )
+        return Car.objects.annotate(status_order=status_order).order_by('status_order', '-created_at')
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({"request": self.request})
@@ -309,7 +317,12 @@ class CarViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         
-        cars = Car.objects.filter(owner=request.user)
+        status_order = models.Case(
+            models.When(status='booked_out', then=1),
+            default=0,
+            output_field=models.IntegerField(),
+        )
+        cars = Car.objects.filter(owner=request.user).annotate(status_order=status_order).order_by('status_order', '-created_at')
         serializer = CarSerializer(cars, many=True, context={'request': request})
         return Response(serializer.data)
     
