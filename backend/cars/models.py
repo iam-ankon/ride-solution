@@ -95,8 +95,8 @@ class Car(models.Model):
     rent_to_own_term = models.IntegerField(default=36)
     min_rental_days = models.IntegerField(default=1)
     
-    total_units = models.IntegerField(default=1, help_text="Total number of this car model available")
-    available_units = models.IntegerField(default=1, help_text="Currently available units")
+    total_units = models.IntegerField(default=0, help_text="Total number of this car model available")
+    available_units = models.IntegerField(default=0, help_text="Currently available units")
     max_weekly_bookings = models.IntegerField(default=5, help_text="Maximum bookings per week")
     
     fuel_type = models.CharField(max_length=50, choices=FUEL_CHOICES, default='Petrol')

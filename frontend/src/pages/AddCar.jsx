@@ -745,8 +745,9 @@ function AddCar() {
                     name="available_units"
                     value={formData.available_units}
                     onChange={handleChange}
-                    min="1"
-                    className="w-full px-4 py-2 border rounded-lg"
+                    min="0"
+                    disabled={formData.status === "booked_out"}
+                    className="w-full px-4 py-2 border rounded-lg disabled:bg-gray-100"
                   />
                 </div>
 
