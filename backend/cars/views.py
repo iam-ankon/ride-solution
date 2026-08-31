@@ -497,14 +497,23 @@ class CarViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def check_availability(self, request, pk=None):
         car = self.get_object()
-        
+
+        if car.status in ['booked_out', 'maintenance']:
+            return Response({
+                'is_available': False,
+                'total_units': car.total_units,
+                'available_units': 0,
+                'status': car.status,
+                'pending_bookings': Rental.objects.filter(car=car, status='pending').count()
+            })
+
         total_active = Rental.objects.filter(
             car=car,
             status__in=['confirmed', 'active']
         ).count()
-        
+
         available_units = max(0, car.total_units - total_active)
-        
+
         return Response({
             'is_available': available_units > 0,
             'total_units': car.total_units,
