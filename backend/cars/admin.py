@@ -6,17 +6,18 @@ from django.contrib.auth.models import User
 from django.utils.html import format_html
 from django.urls import reverse
 from django.db.models import Count, Sum, Q
+from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from .models import *
 from datetime import date, timedelta
 
 
-class UserProfileInline(admin.StackedInline):
+class UserProfileInline(StackedInline):
     model = UserProfile
     can_delete = False
     verbose_name_plural = 'Profile'
 
 
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(ModelAdmin, UserAdmin):
     inlines = (UserProfileInline,)
     list_display = ['username', 'email', 'first_name', 'last_name', 'is_staff', 'get_user_type', 'get_phone', 'is_verified']
     list_filter = ['is_staff', 'is_superuser', 'is_active', 'profile__user_type', 'profile__is_verified']
@@ -41,7 +42,7 @@ admin.site.register(User, CustomUserAdmin)
 
 
 @admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(ModelAdmin):
     list_display = ['user', 'full_name', 'phone', 'user_type', 'business_name', 'is_verified', 'created_at']
     list_filter = ['user_type', 'is_verified', 'country', 'state']
     search_fields = ['user__username', 'user__email', 'phone', 'business_name', 'abn']
@@ -68,7 +69,7 @@ class UserProfileAdmin(admin.ModelAdmin):
     )
 
 
-class CarImageInline(admin.TabularInline):
+class CarImageInline(TabularInline):
     model = CarImage
     extra = 3
     fields = ['image', 'image_url', 'is_primary', 'preview']
@@ -84,7 +85,7 @@ class CarImageInline(admin.TabularInline):
 
 
 @admin.register(Car)
-class CarAdmin(admin.ModelAdmin):
+class CarAdmin(ModelAdmin):
     list_display = ['id', 'name', 'brand', 'model_year', 'owner_name', 'daily_price', 'weekly_price', 'signup_fee', 'bond_amount', 'status', 'featured', 'available_units_display']
     list_filter = ['status', 'fuel_type', 'transmission', 'featured', 'short_term_available', 'long_term_available', 'rent_to_own_available']
     search_fields = ['name', 'brand', 'description', 'owner__username', 'owner__email']
@@ -168,7 +169,7 @@ class CarAdmin(admin.ModelAdmin):
 
 
 @admin.register(CarImage)
-class CarImageAdmin(admin.ModelAdmin):
+class CarImageAdmin(ModelAdmin):
     list_display = ['id', 'car', 'is_primary', 'has_cloudinary_url', 'image_preview', 'uploaded_at']
     list_filter = ['car', 'is_primary']
     search_fields = ['car__name', 'car__brand', 'public_id']
@@ -189,7 +190,7 @@ class CarImageAdmin(admin.ModelAdmin):
 
 
 @admin.register(Rental)
-class RentalAdmin(admin.ModelAdmin):
+class RentalAdmin(ModelAdmin):
     list_display = ['booking_reference', 'customer_name', 'car_link', 'rental_type', 'start_date', 'end_date', 'total_price', 'signup_fee_paid', 'bond_paid', 'status']
     list_filter = ['status', 'rental_type', 'start_date', 'signup_fee_paid', 'bond_paid', 'bond_refunded']
     search_fields = ['customer_name', 'customer_email', 'booking_reference', 'car__name', 'car__brand']
@@ -232,7 +233,7 @@ class RentalAdmin(admin.ModelAdmin):
 
 
 @admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
+class PaymentAdmin(ModelAdmin):
     list_display = ['payment_reference', 'rental_link', 'amount', 'status', 'payment_type', 'payment_for_week', 'payment_date']
     list_filter = ['status', 'payment_type', 'payment_date']
     search_fields = ['payment_reference', 'rental__booking_reference', 'rental__customer_name']
@@ -259,7 +260,7 @@ class PaymentAdmin(admin.ModelAdmin):
 
 
 @admin.register(CarAvailability)
-class CarAvailabilityAdmin(admin.ModelAdmin):
+class CarAvailabilityAdmin(ModelAdmin):
     list_display = ['car', 'date', 'available_units', 'is_fully_booked']
     list_filter = ['is_fully_booked', 'date']
     search_fields = ['car__name', 'car__brand']
@@ -273,7 +274,7 @@ class CarAvailabilityAdmin(admin.ModelAdmin):
 
 
 @admin.register(ContactMessage)
-class ContactMessageAdmin(admin.ModelAdmin):
+class ContactMessageAdmin(ModelAdmin):
     list_display = ['name', 'email', 'subject', 'is_read', 'created_at']
     list_filter = ['is_read', 'created_at']
     search_fields = ['name', 'email', 'subject', 'message']
@@ -291,7 +292,7 @@ class ContactMessageAdmin(admin.ModelAdmin):
 
 
 @admin.register(Vehicle)
-class VehicleAdmin(admin.ModelAdmin):
+class VehicleAdmin(ModelAdmin):
     list_display = ['plate_number', 'manufacturer', 'model', 'year', 'colour', 'registration_expiry', 'status', 'expiry_warning']
     list_filter = ['status', 'manufacturer', 'year']
     search_fields = ['plate_number', 'vin_number', 'engine_number', 'manufacturer', 'model', 'seller']
@@ -353,7 +354,7 @@ class VehicleAdmin(admin.ModelAdmin):
 
 
 @admin.register(Driver)
-class DriverAdmin(admin.ModelAdmin):
+class DriverAdmin(ModelAdmin):
     list_display = ['name', 'plate_number_link', 'phone_number', 'start_date', 'end_date', 'is_current', 'payment_status']
     list_filter = ['is_current', 'plate_number']
     search_fields = ['name', 'driver_licence_no', 'phone_number', 'email_address']
@@ -389,7 +390,7 @@ class DriverAdmin(admin.ModelAdmin):
 
 
 @admin.register(Insurance)
-class InsuranceAdmin(admin.ModelAdmin):
+class InsuranceAdmin(ModelAdmin):
     list_display = ['plate_number_link', 'provider', 'policy_number', 'monthly_amount', 'end_date', 'status', 'expiry_status']
     list_filter = ['provider', 'status']
     search_fields = ['plate_number__plate_number', 'policy_number', 'policy_holder']
@@ -422,7 +423,7 @@ class InsuranceAdmin(admin.ModelAdmin):
 
 
 @admin.register(GPSDevice)
-class GPSDeviceAdmin(admin.ModelAdmin):
+class GPSDeviceAdmin(ModelAdmin):
     list_display = ['plate_number_link', 'new_tracker_no', 'new_sim_no', 'activation_date', 'provider']
     list_filter = ['provider']
     search_fields = ['plate_number__plate_number', 'new_tracker_no', 'new_sim_no', 'account_name']
@@ -447,7 +448,7 @@ class GPSDeviceAdmin(admin.ModelAdmin):
 
 
 @admin.register(ServiceRecord)
-class ServiceRecordAdmin(admin.ModelAdmin):
+class ServiceRecordAdmin(ModelAdmin):
     list_display = ['plate_number_link', 'driver_name', 'current_reading', 'next_service_at', 'service_status', 'forecasted_service', 'completed_on']
     list_filter = ['status', 'completed_on']
     search_fields = ['plate_number__plate_number', 'driver_name', 'notes']
@@ -468,7 +469,7 @@ class ServiceRecordAdmin(admin.ModelAdmin):
 
 
 @admin.register(TollOffence)
-class TollOffenceAdmin(admin.ModelAdmin):
+class TollOffenceAdmin(ModelAdmin):
     list_display = ['penalty_notice_number', 'vehicle_rego', 'driver_name', 'offence_date', 'maturity_date', 'status', 'overdue_status', 'submitted']
     list_filter = ['status', 'offence_date', 'submitted']
     search_fields = ['penalty_notice_number', 'vehicle_rego', 'driver_name', 'offence']
@@ -497,7 +498,7 @@ class TollOffenceAdmin(admin.ModelAdmin):
 
 
 @admin.register(PaymentLedger)
-class PaymentLedgerAdmin(admin.ModelAdmin):
+class PaymentLedgerAdmin(ModelAdmin):
     list_display = ['plate_number_link', 'driver_name', 'week_start', 'week_end', 'due_date', 'due_amount', 'received_amount', 'status', 'payment_status']
     list_filter = ['status', 'due_date']
     search_fields = ['plate_number__plate_number', 'driver_name']
@@ -533,7 +534,7 @@ class PaymentLedgerAdmin(admin.ModelAdmin):
 
 
 @admin.register(IncomeExpense)
-class IncomeExpenseAdmin(admin.ModelAdmin):
+class IncomeExpenseAdmin(ModelAdmin):
     list_display = ['date', 'plate_number_link', 'type', 'category', 'amount', 'description']
     list_filter = ['type', 'category', 'date']
     search_fields = ['description', 'reference', 'plate_number__plate_number']
@@ -555,7 +556,7 @@ class IncomeExpenseAdmin(admin.ModelAdmin):
 
 
 @admin.register(InstallStatus)
-class InstallStatusAdmin(admin.ModelAdmin):
+class InstallStatusAdmin(ModelAdmin):
     list_display = ['plate_number_link', 'driver_name', 'tracker_number', 'install_date', 'status']
     list_filter = ['status', 'install_date']
     search_fields = ['plate_number__plate_number', 'driver_name', 'tracker_number', 'invoice_number']
@@ -568,7 +569,7 @@ class InstallStatusAdmin(admin.ModelAdmin):
 
 
 @admin.register(Claim)
-class ClaimAdmin(admin.ModelAdmin):
+class ClaimAdmin(ModelAdmin):
     list_display = ['claim_number', 'vehicle_rego', 'event_date', 'progress', 'excess', 'created_at']
     list_filter = ['progress', 'event_date']
     search_fields = ['claim_number', 'vehicle_rego', 'what_happened']
