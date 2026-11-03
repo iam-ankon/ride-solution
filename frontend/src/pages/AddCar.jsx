@@ -27,6 +27,8 @@ function AddCar() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRefs = useRef({});
+  const createdCarIdRef = useRef(null);
+  const isSubmittingRef = useRef(false);
   const [imageFiles, setImageFiles] = useState({});
   const [imagePreviews, setImagePreviews] = useState({});
   const [imageIds, setImageIds] = useState([1]);
@@ -215,6 +217,8 @@ function AddCar() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     setError("");
 
@@ -274,9 +278,13 @@ function AddCar() {
     console.log("Submitting car data:", carData);
 
     try {
-      const response = await apiClient.post(`/api/cars/`, carData);
+      let carId = createdCarIdRef.current;
+      if (!carId) {
+        const response = await apiClient.post(`/api/cars/`, carData);
+        carId = response.data.id;
+        createdCarIdRef.current = carId;
+      }
 
-      const carId = response.data.id;
       const imageIdList = Object.keys(imageFiles);
 
       for (let i = 0; i < imageIdList.length; i++) {
@@ -315,6 +323,7 @@ function AddCar() {
         setError("Network error. Please check if the server is running.");
       }
     } finally {
+      isSubmittingRef.current = false;
       setLoading(false);
     }
   };
